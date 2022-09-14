@@ -9,10 +9,10 @@ public class EfRepository<T> : IRepository<T> where T : BaseEntity, IAggregateRo
     private readonly OVitrinDbContext _db;
     private readonly DbSet<T> _entities;
 
-    public EfRepository(OVitrinDbContext db, DbSet<T> entities)
+    public EfRepository(OVitrinDbContext db)
     {
         _db = db;
-        _entities = entities;
+        _entities = db.Set<T>();
     }
 
     public async Task DeleteAsync(T entity)

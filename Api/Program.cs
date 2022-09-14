@@ -1,3 +1,5 @@
+using ApplicationCore.Entities;
+using ApplicationCore.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -16,10 +18,13 @@ builder.Services.AddIdentity<OVitrinUser, IdentityRole>()
 builder.Services.AddDbContext<OVitrinDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
+builder.Services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 

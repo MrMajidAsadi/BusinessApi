@@ -24,4 +24,10 @@ public class Business : BaseEntity, IAggregateRoot
         if (pictures is not null)
             Pictures = pictures;
     }
+
+    public void UpdateDetails(string name, string? description)
+    {
+        Name = name;
+        Description = description;
+    }
 }
