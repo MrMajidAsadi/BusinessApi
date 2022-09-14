@@ -5,7 +5,9 @@ namespace Infrastructure.Identity;
 
 public class OVitrinIdentityDbContext : IdentityDbContext
 {
-    public OVitrinIdentityDbContext(DbContextOptions options) : base(options)
+    public OVitrinIdentityDbContext(DbContextOptions<OVitrinIdentityDbContext> options) : base(options)
     {
     }
+
+    public DbSet<OVitrinUser>? OVitrinUsers { get; set; }
 }
