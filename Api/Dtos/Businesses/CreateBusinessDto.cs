@@ -11,4 +11,6 @@ public class CreateBusinessDto
 
     [MaxLength(500)]
     public string Description { get; set; }
+
+    public List<IFormFile> Pictures { get; set; } = new List<IFormFile>();
 }

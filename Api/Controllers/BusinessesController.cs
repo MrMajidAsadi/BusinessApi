@@ -11,21 +11,43 @@ public class BusinessesController : ControllerBase
 {
     private readonly ILogger<BusinessesController> _logger;
     private readonly IRepository<Business> _businessRepository;
+    private readonly IFileService _fileService;
 
     public BusinessesController(
         ILogger<BusinessesController> logger,
-        IRepository<Business> businessRepository)
+        IRepository<Business> businessRepository,
+        IFileService fileService)
     {
         _logger = logger;
         _businessRepository = businessRepository;
+        _fileService = fileService;
     }
 
     [HttpPost]
-    public virtual async Task<ActionResult<BusinessDto>> Post(CreateBusinessDto createBusinessDto)
+    public virtual async Task<ActionResult<BusinessDto>> Post([FromForm] CreateBusinessDto createBusinessDto)
     {
-        var business = new Business("", createBusinessDto.Name, createBusinessDto.Description);
-        await _businessRepository.InsertAsync(business);
+        List<Picture> pictures = new();
+        foreach (var file in createBusinessDto.Pictures)
+        {
+            if (file.Length <= 0)
+                continue;
+            
+            var virtualPath = await _fileService.Upload(
+                file.OpenReadStream(),
+                Path.GetExtension(file.FileName),
+                createBusinessDto.Name);
+            
+            pictures.Add(new Picture(file.ContentType, virtualPath, "", "", ""));
+        }
 
+        var business = new Business(
+            "",
+            createBusinessDto.Name,
+            createBusinessDto.Description,
+            pictures);
+            
+        await _businessRepository.InsertAsync(business);
+        
         return CreatedAtAction(
             nameof(Get),
             new { id = business.Id },
@@ -33,7 +55,7 @@ public class BusinessesController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public virtual async Task<ActionResult<Business>> Get(int id)
+    public virtual async Task<ActionResult<BusinessDto>> Get(int id)
     {
         var business = await _businessRepository.GetAsync(id);
 
