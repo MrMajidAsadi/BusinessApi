@@ -24,4 +24,32 @@ public class Picture : BaseEntity, IAggregateRoot
         TitleAttribute = titleAttribute;
         VirtualPath = virtualPath;
     }
+
+    public Picture(
+        int businessId,
+        string mimeType,
+        string virtualPath,
+        string seoFileName,
+        string altAttribute,
+        string titleAttribute)
+    {
+        BusinessId = businessId;
+        MimeType = mimeType;
+        SeoFileName = seoFileName;
+        AltAttribute = altAttribute;
+        TitleAttribute = titleAttribute;
+        VirtualPath = virtualPath;
+    }
+
+    public void UpdateSeo(string? seoFileName, string? altAttribute, string? titleAttribute)
+    {
+        SeoFileName = seoFileName;
+        AltAttribute = altAttribute;
+        TitleAttribute = titleAttribute;
+    }
+
+    public void UpdatePicturePath(string newPath)
+    {
+        VirtualPath = newPath;
+    }
 }

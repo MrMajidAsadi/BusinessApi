@@ -12,9 +12,12 @@ public class FileService : IFileService
         _uploadBase = configuration.GetSection("UploadDirectoryName").Value;
     }
 
-    public Task Delete(string virtualPath)
+    public void Delete(string virtualPath)
     {
-        throw new NotImplementedException();
+        var filePath = $"{Directory.GetCurrentDirectory()}\\{virtualPath}";
+
+        if (File.Exists(filePath))
+            File.Delete(filePath);
     }
 
     public async Task<string> Upload(Stream file, string format, string suggestedFileName = "")
@@ -22,9 +25,14 @@ public class FileService : IFileService
         if (file is null)
             throw new ArgumentNullException(nameof(file));
 
+        // TODO: file validation check and change storage from server to some sort of cdn
+
         var uploadDirectory = $"{Directory.GetCurrentDirectory()}\\{_uploadBase}";
         if (!Directory.Exists(uploadDirectory))
             Directory.CreateDirectory(uploadDirectory);
+
+        if (string.IsNullOrEmpty(suggestedFileName))
+            suggestedFileName = Path.GetRandomFileName();
 
         var fileName = $"{suggestedFileName}{format}";
 
