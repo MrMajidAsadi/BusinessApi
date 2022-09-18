@@ -1,4 +1,5 @@
 using Api.Dtos.Users;
+using ApplicationCore.Interfaces;
 using Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,13 +12,16 @@ public class UsersController : ControllerBase
 {
     private readonly SignInManager<OVitrinUser> _signInManager;
     private readonly UserManager<OVitrinUser> _userManager;
+    private readonly ITokenClaimsService _tokenClaimService;
 
     public UsersController(
         SignInManager<OVitrinUser> signInManager,
-        UserManager<OVitrinUser> userManager)
+        UserManager<OVitrinUser> userManager,
+        ITokenClaimsService tokenClaimService)
     {
         _signInManager = signInManager;
         _userManager = userManager;
+        _tokenClaimService = tokenClaimService;
     }
 
     [HttpPost]
@@ -38,5 +42,16 @@ public class UsersController : ControllerBase
         {
             return BadRequest(new { message = "Somthing went wrong" });
         }
+    }
+
+    [HttpPost("Login")]
+    public virtual async Task<IActionResult> Login(LoginUserDto loginUserDto)
+    {
+        var result = await _signInManager.PasswordSignInAsync(loginUserDto.Email, loginUserDto.Password, false, true);
+
+        if (!result.Succeeded)
+            return Unauthorized();
+
+        return Ok(new { Token = _tokenClaimService.GetTokenAsync(loginUserDto.Email)});
     }
 }

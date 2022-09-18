@@ -1,12 +1,15 @@
 using Api.Dtos.Pictures;
 using ApplicationCore.Entities;
 using ApplicationCore.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Controllers;
 
 [ApiController]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Route("api/Business/{businessId}/[Controller]")]
 public class PicturesController : ControllerBase
 {
@@ -22,6 +25,7 @@ public class PicturesController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public virtual async Task<ActionResult<List<PictureDto>>> GetAll(int businessId)
     {
         var pictures = _pictureRepository.GetAll()
@@ -39,7 +43,7 @@ public class PicturesController : ControllerBase
     {
         var business = await _businessRepository.GetAsync(createPictureDto.BusinessId);
 
-        if (business is null) return BadRequest();
+        if (business is null || business.UserId != User.Identity?.Name) return BadRequest();
 
         var virtualPath = await _fileService.Upload(
             createPictureDto.Picture.OpenReadStream(),
@@ -73,6 +77,10 @@ public class PicturesController : ControllerBase
 
         if (picture is null)
             return NotFound();
+
+        var business = await _businessRepository.GetAsync(picture.BusinessId);
+
+        if (business is null || business.UserId != User.Identity?.Name) return BadRequest();
         
         picture.UpdateSeo(updatePictureDto.SeoFileName, updatePictureDto.AltAttribute, updatePictureDto.TitleAttribute);
         if (updatePictureDto.Picture != null)
@@ -99,6 +107,10 @@ public class PicturesController : ControllerBase
 
         if (picture is null)
             return NotFound();
+        
+        var business = await _businessRepository.GetAsync(picture.BusinessId);
+
+        if (business is null || business.UserId != User.Identity?.Name) return BadRequest();
 
         _fileService.Delete(picture.VirtualPath);
         await _pictureRepository.DeleteAsync(picture);

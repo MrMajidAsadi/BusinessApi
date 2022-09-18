@@ -1,12 +1,15 @@
 using Api.Dtos.Businesses;
 using ApplicationCore.Entities;
 using ApplicationCore.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
 [ApiController]
 [Route("api/[Controller]")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class BusinessesController : ControllerBase
 {
     private readonly ILogger<BusinessesController> _logger;
@@ -26,9 +29,8 @@ public class BusinessesController : ControllerBase
     [HttpPost]
     public virtual async Task<ActionResult<BusinessDto>> Post([FromForm] CreateBusinessDto createBusinessDto)
     {
-        // TODO: implement authentication/athorization and append user to business
         var business = new Business(
-            "",
+            User.Identity?.Name!,
             createBusinessDto.Name,
             createBusinessDto.Description);
             
@@ -58,7 +60,7 @@ public class BusinessesController : ControllerBase
             return BadRequest();
 
         var business = await _businessRepository.GetAsync(id);
-        if (business is null)
+        if (business is null || business.UserId != User.Identity?.Name)
             return NotFound();
 
         business.UpdateDetails(businessDto.Name, businessDto.Description);
@@ -72,7 +74,7 @@ public class BusinessesController : ControllerBase
     {
         var business = await _businessRepository.GetAsync(id);
         
-        if (business is null)
+        if (business is null || business.UserId != User.Identity?.Name)
             return NotFound();
         
         await _businessRepository.DeleteAsync(business);
