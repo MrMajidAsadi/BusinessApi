@@ -15,6 +15,11 @@ public class EfRepository<T> : IRepository<T> where T : BaseEntity, IAggregateRo
         _entities = db.Set<T>();
     }
 
+    public virtual IQueryable<T> GetAll()
+    {
+        return _entities;
+    }
+
     public async Task DeleteAsync(T entity)
     {
         if (entity is null)

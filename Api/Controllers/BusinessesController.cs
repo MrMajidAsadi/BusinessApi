@@ -26,25 +26,11 @@ public class BusinessesController : ControllerBase
     [HttpPost]
     public virtual async Task<ActionResult<BusinessDto>> Post([FromForm] CreateBusinessDto createBusinessDto)
     {
-        List<Picture> pictures = new();
-        foreach (var file in createBusinessDto.Pictures)
-        {
-            if (file.Length <= 0)
-                continue;
-            
-            var virtualPath = await _fileService.Upload(
-                file.OpenReadStream(),
-                Path.GetExtension(file.FileName),
-                createBusinessDto.Name);
-            
-            pictures.Add(new Picture(file.ContentType, virtualPath, "", "", ""));
-        }
-
+        // TODO: implement authentication/athorization and append user to business
         var business = new Business(
             "",
             createBusinessDto.Name,
-            createBusinessDto.Description,
-            pictures);
+            createBusinessDto.Description);
             
         await _businessRepository.InsertAsync(business);
         

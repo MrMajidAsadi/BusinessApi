@@ -41,7 +41,7 @@ public class FileService : IFileService
         var num = 1;
         while (File.Exists(filePath))
         {
-            fileName = $"{suggestedFileName}-{num}.{format}";
+            fileName = $"{suggestedFileName}-{num}{format}";
             filePath = Path.Combine(uploadDirectory, fileName);
             num++;
         }

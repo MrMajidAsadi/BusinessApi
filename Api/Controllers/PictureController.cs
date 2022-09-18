@@ -2,22 +2,36 @@ using Api.Dtos.Pictures;
 using ApplicationCore.Entities;
 using ApplicationCore.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.Controllers;
 
 [ApiController]
-[Route("api/[Controller]")]
-public class PictureController : ControllerBase
+[Route("api/Business/{businessId}/[Controller]")]
+public class PicturesController : ControllerBase
 {
     private readonly IRepository<Picture> _pictureRepository;
     private readonly IRepository<Business> _businessRepository;
     private readonly IFileService _fileService;
 
-    public PictureController(IRepository<Picture> pictureRepository, IFileService fileService, IRepository<Business> businessRepository)
+    public PicturesController(IRepository<Picture> pictureRepository, IFileService fileService, IRepository<Business> businessRepository)
     {
         _pictureRepository = pictureRepository;
         _fileService = fileService;
         _businessRepository = businessRepository;
+    }
+
+    [HttpGet]
+    public virtual async Task<ActionResult<List<PictureDto>>> GetAll(int businessId)
+    {
+        var pictures = _pictureRepository.GetAll()
+            .Where(p => p.BusinessId == businessId);
+
+        return await pictures.Select(p => new PictureDto 
+        {
+            Id = p.Id,
+            Url = p.VirtualPath
+        }).ToListAsync();
     }
 
     [HttpPost]
