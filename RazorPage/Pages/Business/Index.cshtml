@@ -2,17 +2,7 @@
 @model BusinessIndexPageModel
 
 @{
-    ViewData["Title"] = Model.Business.name;
+    ViewData["Title"] = Model.Business.Name;
 }
 
-<div>
-    <h1>@Model.Business.name</h1>
-    <p>@Model.Business.description</p>
-    @if (Model.Business.Pictures.Any())
-    {
-        foreach(var pic in Model.Business.Pictures)
-        {
-            <img width="500px" src="/@pic.url" />
-        }
-    }
-</div>
+<partial name="_BusinessSingleView" model="Model.Business" />

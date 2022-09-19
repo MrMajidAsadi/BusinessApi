@@ -1,41 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using RazorPage.Models.Businesses;
+using RazorPage.Services;
 
 namespace RazorPage.Pages.Business;
 
 public class BusinessIndexPageModel : PageModel
 {
-    private readonly HttpClient _httpClient;
+    private readonly IHttpService _httpService;
 
-    public BusinessIndexPageModel(HttpClient httpClient)
+    public BusinessIndexPageModel(IHttpService httpService)
     {
-        _httpClient = httpClient;
+        _httpService = httpService;
     }
 
-    public BusinessDto Business { get; set; } = new();
+    public BusinessModel Business { get; set; } = new();
 
     public virtual async Task<IActionResult> OnGetAsync(int id)
     {
-        var response = await _httpClient.GetAsync($"https://localhost:7153/api/Businesses/{id}");
-        if (!response.IsSuccessStatusCode)
-            return NotFound();
+        var business = await _httpService.HttpGet<BusinessModel>($"Businesses/{id}");
+        if (business is null) return NotFound();
 
-        Business = await response.Content.ReadFromJsonAsync<BusinessDto>();
-        if (Business is null)
-            return NotFound();
+        Business = business;
         return Page(); ;
     }
-}
-public class BusinessDto
-{
-    public int id { get; set; }
-    public string name { get; set; } = string.Empty;
-    public string? description { get; set; }
-    public List<PictureDto> Pictures { get; set; }
-}
-
-public class PictureDto
-{
-    public int id { get; set; }
-    public string url { get; set; }
 }

@@ -1,29 +1,28 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using RazorPage.Pages.Business;
+using RazorPage.Models.Businesses;
+using RazorPage.Services;
 
 namespace RazorPage.Pages;
 
 public class IndexModel : PageModel
 {
     private readonly ILogger<IndexModel> _logger;
-    private readonly HttpClient _httpClient;
+    private readonly IHttpService _httpService;
 
-    public IndexModel(ILogger<IndexModel> logger, HttpClient httpClient)
+    public IndexModel(ILogger<IndexModel> logger, IHttpService httpService)
     {
         _logger = logger;
-        _httpClient = httpClient;
+        _httpService = httpService;
     }
 
-    public List<BusinessDto> Businesses { get; set; }
+    public List<BusinessModel> Businesses { get; set; } = new();
 
     public async Task<IActionResult> OnGetAsync()
     {
-        var response = await _httpClient.GetAsync("https://localhost:7153/api/Businesses");
-        if (!response.IsSuccessStatusCode)
-            return NotFound();
-        
-        Businesses = await response.Content.ReadFromJsonAsync<List<BusinessDto>>();
+        var businesses = await _httpService.HttpGet<List<BusinessModel>>("Businesses");
+        if (businesses is not null) Businesses = businesses;
+
         return Page();
     }
 }

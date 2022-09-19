@@ -4,19 +4,12 @@
     ViewData["Title"] = "Home page";
 }
 
-<div>
-    @foreach (var business in Model.Businesses)
-    {
-        <div>
-            <h1>@business.name</h1>
-            <p>@business.description</p>
-            @if (business.Pictures.Any())
-            {
-                foreach (var pic in business.Pictures)
-                {
-                    <img width="500px" src="/@pic.url" />
-                }
-            }
-        </div>
-    }
-</div>
+@if (Model.Businesses.Any())
+{
+    <div>
+        @foreach (var business in Model.Businesses)
+        {
+            <partial name="_BusinessListView" model="@business" />
+        }
+    </div>
+}

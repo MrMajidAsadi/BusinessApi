@@ -1,0 +1,13 @@
+@model RazorPage.Models.Businesses.BusinessModel
+
+<div>
+    <h1>@Model.Name</h1>
+    <p>@Model.Description</p>
+    @if (Model.Pictures.Any())
+    {
+        foreach (var pic in Model.Pictures)
+        {
+            <img width="500px" src="/@pic.Url" />
+        }
+    }
+</div>
