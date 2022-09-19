@@ -47,6 +47,28 @@ public class BusinessesController : ControllerBase
             new BusinessDto { Id = business.Id, Name = business.Name, Description = business.Description });
     }
 
+    [HttpGet]
+    [AllowAnonymous]
+    public virtual async Task<ActionResult<List<BusinessDto>>> GetAll()
+    {
+        var businesses = await _businessRepository.GetAll()
+            .Include(b => b.Pictures).ToListAsync();
+        
+        var businessDto = businesses.Select(b => new BusinessDto
+        {
+            Id = b.Id,
+            Name = b.Name,
+            Description = b.Description,
+            Pictures = b.Pictures.Select(p => new PictureDto
+            {
+                Id = p.Id,
+                Url = p.VirtualPath
+            }).ToList()
+        }).ToList();
+
+        return Ok(businessDto);
+    }
+
     [HttpGet("{id}")]
     [AllowAnonymous]
     public virtual async Task<ActionResult<BusinessDto>> Get(int id)
