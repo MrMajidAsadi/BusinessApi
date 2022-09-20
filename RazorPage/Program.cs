@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using RazorPage.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,6 +6,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddHttpClient();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+    });
+builder.Services.AddSession();
+
 builder.Services.AddSingleton<IHttpService, HttpService>();
 
 var app = builder.Build();
@@ -21,7 +31,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseSession();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();

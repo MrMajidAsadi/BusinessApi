@@ -52,6 +52,8 @@ public class UsersController : ControllerBase
         if (!result.Succeeded)
             return Unauthorized();
 
-        return Ok(new { Token = _tokenClaimService.GetTokenAsync(loginUserDto.Email)});
+        var token = await _tokenClaimService.GetTokenAsync(loginUserDto.Email);
+
+        return Ok(new { Token = token });
     }
 }
